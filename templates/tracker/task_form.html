@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}New task{% endblock %}
+{% block content %}
+<section class="panel auth-panel wide">
+  <h1>New task</h1>
+  <p class="muted">Creating a task doesn't start the clock. You press START when you're ready.</p>
+  <form method="post" class="form">
+    {% csrf_token %}
+    {% include "tracker/_form_fields.html" %}
+    <div class="form-actions">
+      <button class="btn btn-start" type="submit">Create task</button>
+      <a class="btn btn-ghost" href="{% url 'dashboard' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

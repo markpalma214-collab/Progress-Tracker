@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+{% block title %}Study by subject{% endblock %}
+{% block content %}
+<div class="section-head">
+  <h1>Study time by subject</h1>
+  <a class="btn btn-ghost btn-small" href="{% url 'history' %}">History</a>
+</div>
+<p class="muted">Grouped by a task's subject; tasks without one are grouped by title.</p>
+<nav class="tabs" aria-label="Range">
+  {% for key, label in ranges.items %}<a class="tab{% if key == current %} is-active{% endif %}" href="{% url 'subjects' %}?range={{ key }}">{{ label }}</a>{% endfor %}
+</nav>
+{% if rows %}
+<ul class="bars">
+  {% for row in rows %}
+    <li>
+      <div class="bars-head"><span>{{ row.label }}</span><b>{{ row.seconds|hours }} h</b></div>
+      <div class="bars-track"><div class="bars-fill" style="width: {{ row.percent|floatformat:'1u' }}%"></div></div>
+      <small class="muted">{{ row.sessions }} session{{ row.sessions|pluralize }} · avg {{ row.average|hm }}</small>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p class="empty">No completed sessions in this range.</p>
+{% endif %}
+{% endblock %}

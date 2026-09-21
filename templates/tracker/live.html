@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Live{% endblock %}
+{% block content %}
+<div class="section-head">
+  <h1>Live study room</h1>
+</div>
+<p class="muted">Everyone with a running timer, updating as people start and stop. Bars refresh from the server every few seconds.</p>
+{% include "tracker/_presence.html" with hide_link=True %}
+<p class="live-status muted" data-live-status role="status"></p>
+<div class="live-grid" id="live-list"
+     data-live-url="{% url 'live_data' %}" data-poll-ms="5000" aria-live="polite"></div>
+<p class="empty" data-live-empty>Loading…</p>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/live.js' %}"></script>{% endblock %}

@@ -1,0 +1,15 @@
+{% load tracker_extras %}
+<div class="charge{% if large %} charge-large{% endif %}"
+     {% if task.is_running %}data-timer data-started="{{ task.started_ms }}" data-duration="{{ task.duration_seconds }}" data-server-now="{{ now_ms }}"{% if controls %} data-stop-url="{% url 'task_stop' task.pk %}"{% endif %}{% endif %}>
+  <div class="charge-head">
+    <span class="charge-percent"><span data-percent>{{ percent_int }}</span>%</span>
+    <span class="charge-left"><span data-remaining>{{ remaining|clock }}</span> <small>remaining</small></span>
+  </div>
+  <div class="charge-bar" role="progressbar" aria-label="Task progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ percent_int }}">
+    <div class="charge-fill" data-fill style="width: {{ percent|floatformat:'2u' }}%"></div>
+  </div>
+  <div class="charge-foot">
+    <span>Elapsed <b data-elapsed>{{ elapsed|clock }}</b></span>
+    <span>Planned {{ task.duration }} min</span>
+  </div>
+</div>

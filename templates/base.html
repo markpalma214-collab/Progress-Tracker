@@ -1,0 +1,76 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Progress Tracker{% endblock %} · Progress Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body{% if user.is_authenticated %} data-ping-url="{% url 'presence_ping' %}"{% endif %}>
+{% with page=request.resolver_match.url_name %}
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark" aria-hidden="true"></span>Progress Tracker</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
+      <span class="sr-only">Menu</span><span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <nav id="site-nav" class="nav" aria-label="Main">
+      {% if user.is_authenticated %}
+        <a class="nav-link{% if page == 'dashboard' %} is-active{% endif %}" {% if page == 'dashboard' %}aria-current="page"{% endif %} href="{% url 'dashboard' %}">Dashboard</a>
+        <a class="nav-link{% if page == 'task_list' or page == 'task_create' or page == 'task_detail' %} is-active{% endif %}" href="{% url 'task_list' %}">Tasks</a>
+        <a class="nav-link{% if page == 'history' or page == 'subjects' %} is-active{% endif %}" href="{% url 'history' %}">History</a>
+        <a class="nav-link{% if page == 'rankings' or page == 'rankings_period' %} is-active{% endif %}" href="{% url 'rankings' %}">Rankings</a>
+        <a class="nav-link{% if page == 'live' %} is-active{% endif %}" href="{% url 'live' %}">Live</a>
+        <a class="nav-link{% if page == 'user_progress' and request.resolver_match.kwargs.username == user.username %} is-active{% endif %}" href="{% url 'user_progress' user.username %}">My Progress</a>
+        <a class="nav-link{% if page == 'rewards' %} is-active{% endif %}" href="{% url 'rewards' %}">Rewards</a>
+        <a class="nav-link{% if page == 'profile' %} is-active{% endif %}" href="{% url 'profile' %}">Profile</a>
+        <form class="nav-logout" method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button class="nav-link" type="submit">Logout</button></form>
+      {% else %}
+        <a class="nav-link{% if page == 'account_login' %} is-active{% endif %}" href="{% url 'account_login' %}">Log in</a>
+        <a class="nav-link{% if page == 'account_signup' %} is-active{% endif %}" href="{% url 'account_signup' %}">Sign up</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+{% endwith %}
+
+<main class="shell" id="main">
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="msg msg-{{ message.tags }}" role="status">{{ message }}<button type="button" class="msg-close" data-dismiss aria-label="Dismiss">×</button></div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+{% if needs_username %}
+<div class="modal-backdrop" id="username-modal" role="dialog" aria-modal="true" aria-labelledby="username-title" aria-describedby="username-desc">
+  <div class="modal panel">
+    <h2 id="username-title">Choose your username</h2>
+    <p id="username-desc" class="muted">This is the name everyone sees on the rankings and in the live room. It isn't taken from your Google account. You need to pick one before you can continue.</p>
+    <form method="post" action="{% url 'username_set' %}" class="form" data-username-form novalidate>
+      {% csrf_token %}
+      {% include "tracker/_form_fields.html" with form=username_form %}
+      <p class="error" data-username-errors role="alert">{% for message in messages %}{% if message.level_tag == 'error' %}{{ message }} {% endif %}{% endfor %}</p>
+      <div class="form-actions">
+        <button class="btn btn-start" type="submit">Save username</button>
+      </div>
+    </form>
+    <form method="post" action="{% url 'account_logout' %}" class="modal-alt">{% csrf_token %}<button class="btn btn-ghost btn-small" type="submit">Log out instead</button></form>
+  </div>
+</div>
+{% endif %}
+
+<script src="{% static 'js/progress.js' %}"></script>
+<script src="{% static 'js/timer.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/presence.js' %}"></script>
+<script src="{% static 'js/username.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

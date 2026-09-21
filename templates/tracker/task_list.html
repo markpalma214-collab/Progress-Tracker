@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+<div class="section-head">
+  <h1>Tasks</h1>
+  <a class="btn btn-start btn-small" href="{% url 'task_create' %}">New task</a>
+</div>
+<p class="muted">{{ counts.total }} total · {{ counts.completed }} completed · {{ counts.active }} active · {{ counts.remaining }} remaining</p>
+<nav class="tabs" aria-label="Filter tasks">
+  {% for f in filters %}<a class="tab{% if f == current %} is-active{% endif %}" href="{% url 'task_list' %}?status={{ f }}">{{ f|capfirst }}</a>{% endfor %}
+</nav>
+{% if page_obj %}
+  <div class="task-grid">{% for task in page_obj %}{% include "tracker/_task_card.html" with active=active %}{% endfor %}</div>
+  {% include "tracker/_pagination.html" %}
+{% else %}
+  <p class="empty">Nothing here yet.</p>
+{% endif %}
+{% endblock %}

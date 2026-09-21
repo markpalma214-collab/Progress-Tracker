@@ -1,0 +1,35 @@
+{% load tracker_extras %}
+<article class="card task-card is-{{ task.status }}">
+  <header class="task-head">
+    <h3 class="task-title"><a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a></h3>
+    <span class="badge badge-{{ task.status }}">{{ task.status_label }}</span>
+  </header>
+  <dl class="task-meta">
+    <div><dt>Duration</dt><dd>{{ task.duration }} min</dd></div>
+    <div><dt>Created</dt><dd>{{ task.created_at|date:"M j" }}</dd></div>
+    {% if task.category %}<div><dt>Subject</dt><dd>{{ task.category }}</dd></div>{% endif %}
+  </dl>
+  {% progress_bar task controls=True %}
+  {% if task.rewards.all %}
+    <p class="task-rewards"><span class="sr-only">Rewards:</span>{% for r in task.rewards.all %}<span class="chip">{{ r.reward }}</span>{% endfor %}</p>
+  {% endif %}
+  <div class="task-actions">
+    {% if task.is_pending %}
+      <form method="post" action="{% url 'task_start' task.pk %}">{% csrf_token %}
+        <button class="btn btn-start btn-small" type="submit" {% if active %}disabled title="Stop your running timer first"{% endif %}>START</button>
+      </form>
+    {% elif task.is_running %}
+      <form method="post" action="{% url 'task_stop' task.pk %}">{% csrf_token %}
+        <button class="btn btn-stop btn-small" type="submit">STOP</button>
+      </form>
+    {% endif %}
+    <button type="button" class="expand-btn" data-toggle-more="more-{{ task.pk }}" aria-expanded="false" aria-controls="more-{{ task.pk }}">
+      <span data-more-label>Details</span><span class="expand-chevron" aria-hidden="true"></span>
+    </button>
+  </div>
+  <div class="task-more" id="more-{{ task.pk }}">
+    <div class="task-more-inner">
+      {% if task.description %}<p>{{ task.description|linebreaksbr }}</p>{% else %}<p class="muted">No description.</p>{% endif %}
+    </div>
+  </div>
+</article>

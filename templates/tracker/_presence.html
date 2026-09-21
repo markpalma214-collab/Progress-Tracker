@@ -1,0 +1,6 @@
+<p class="presence" data-presence>
+  <span class="presence-dot" aria-hidden="true"></span>
+  <span><b data-online>{{ presence.online }}</b> online now</span>
+  <span><b data-studying>{{ presence.studying }}</b> studying</span>
+  {% if not hide_link %}<a href="{% url 'live' %}">Watch live</a>{% endif %}
+</p>

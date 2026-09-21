@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+{% block title %}History{% endblock %}
+{% block content %}
+<div class="section-head">
+  <h1>Study history</h1>
+  <a class="btn btn-ghost btn-small" href="{% url 'subjects' %}">By subject</a>
+</div>
+<nav class="tabs" aria-label="Period">
+  {% for key, label in periods.items %}<a class="tab{% if key == period %} is-active{% endif %}" href="{% url 'history' %}?period={{ key }}">{{ label }}</a>{% endfor %}
+</nav>
+<section class="stats stats-3">
+  <dl class="stat"><dt>Study hours</dt><dd>{{ totals.seconds|hours }}</dd></dl>
+  <dl class="stat"><dt>Completed tasks</dt><dd>{{ totals.sessions }}</dd></dl>
+  <dl class="stat"><dt>Average session</dt><dd>{{ totals.average|hm }}</dd></dl>
+</section>
+{% if page_obj %}
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Task</th><th>Subject</th><th>Started</th><th>Ended</th><th>Studied</th><th>Rewards</th></tr></thead>
+    <tbody>
+    {% for task in page_obj %}
+      <tr>
+        <td><a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a></td>
+        <td>{{ task.category|default:"—" }}</td>
+        <td>{{ task.started_at|date:"M j, H:i" }}</td>
+        <td>{{ task.completed_at|date:"M j, H:i" }}</td>
+        <td class="num">{{ task.studied_seconds|hm }} <small class="muted">of {{ task.duration }}m</small></td>
+        <td>{% for r in task.rewards.all %}<span class="chip">{{ r.reward }}</span>{% empty %}—{% endfor %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "tracker/_pagination.html" %}
+{% else %}
+  <p class="empty">No completed sessions for this period.</p>
+{% endif %}
+{% endblock %}

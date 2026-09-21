@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="section-head">
+    <h1>{{ task.title }}</h1>
+    <span class="badge badge-{{ task.status }}">{{ task.status_label }}</span>
+  </div>
+  {% if task.description %}<p>{{ task.description|linebreaksbr }}</p>{% endif %}
+  {% progress_bar task controls=True large=True %}
+  <dl class="detail-grid">
+    <div><dt>Duration</dt><dd>{{ task.duration }} min</dd></div>
+    <div><dt>Break after</dt><dd>{{ task.break_duration }} min</dd></div>
+    <div><dt>Subject</dt><dd>{{ task.category|default:"None" }}</dd></div>
+    <div><dt>Visibility</dt><dd>{% if task.is_public %}Public title{% else %}Private{% endif %}</dd></div>
+    <div><dt>Created</dt><dd>{{ task.created_at|date:"M j, Y H:i" }}</dd></div>
+    <div><dt>Started</dt><dd>{{ task.started_at|date:"M j, Y H:i"|default:"Not started" }}</dd></div>
+    <div><dt>Ended</dt><dd>{{ task.completed_at|date:"M j, Y H:i"|default:"—" }}</dd></div>
+    <div><dt>Studied</dt><dd>{{ task.studied_seconds|hm }}</dd></div>
+  </dl>
+  {% if task.rewards.all %}
+    <p class="task-rewards">{% for r in task.rewards.all %}<span class="chip chip-reward">{{ r.reward }}</span>{% endfor %}</p>
+  {% endif %}
+  <div class="hero-actions">
+    {% if task.is_pending %}
+      <form method="post" action="{% url 'task_start' task.pk %}">{% csrf_token %}<button class="btn btn-start" type="submit" {% if active %}disabled title="Stop your running timer first"{% endif %}>START</button></form>
+    {% elif task.is_running %}
+      <form method="post" action="{% url 'task_stop' task.pk %}">{% csrf_token %}<button class="btn btn-stop" type="submit">STOP</button></form>
+    {% endif %}
+    {% if not task.is_running %}
+      <form method="post" action="{% url 'task_delete' task.pk %}" data-confirm="Delete this task and its rewards?">{% csrf_token %}<button class="btn btn-ghost" type="submit">Delete</button></form>
+    {% endif %}
+    <a class="btn btn-ghost" href="{% url 'task_list' %}">Back to tasks</a>
+  </div>
+</section>
+{% endblock %}

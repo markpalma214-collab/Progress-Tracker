@@ -1,0 +1,5 @@
+Django>=5.1,<7.0
+django-allauth[socialaccount]>=65.0,<66.0
+python-dotenv>=1.0
+dj-database-url>=2.2
+psycopg[binary]>=3.2

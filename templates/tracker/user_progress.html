@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+{% block title %}{{ person.username }}{% endblock %}
+{% block content %}
+<section class="panel">
+  <p class="hero-label">{% if is_owner %}Your progress{% else %}Progress{% endif %}</p>
+  <h1>{{ person.username }}</h1>
+  {% if active %}
+    <h2 class="hero-title small">Now studying: {% if active.is_public or is_owner %}{{ active.title }}{% else %}Private session{% endif %}</h2>
+    {% progress_bar active controls=is_owner large=True %}
+  {% else %}
+    <p class="empty">Not studying right now.</p>
+  {% endif %}
+</section>
+
+<section class="stats stats-3">
+  <dl class="stat"><dt>Study hours</dt><dd>{{ stats.study_seconds|hours }}</dd></dl>
+  <dl class="stat"><dt>Today</dt><dd>{{ stats.today_seconds|hm }}</dd></dl>
+  <dl class="stat"><dt>Completed tasks</dt><dd>{{ stats.completed }}</dd></dl>
+</section>
+
+<section>
+  <h2>Recent activity</h2>
+  {% if recent %}
+  <ul class="activity">
+    {% for task in recent %}
+      <li>
+        <span>{% if task.is_public or is_owner %}{{ task.title }}{% else %}<span class="muted">Private session</span>{% endif %}</span>
+        <span class="muted">{{ task.studied_seconds|hm }} · {{ task.completed_at|date:"M j, H:i" }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p class="empty">No completed sessions yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

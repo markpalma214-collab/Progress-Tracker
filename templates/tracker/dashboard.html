@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+{% include "tracker/_presence.html" %}
+<section class="hero panel" aria-labelledby="hero-title">
+  {% if active %}
+    <p class="hero-label">Now studying</p>
+    <h1 id="hero-title" class="hero-title">{{ active.title }}</h1>
+    {% progress_bar active controls=True large=True %}
+    <div class="hero-actions">
+      <button class="btn btn-start" type="button" disabled>START</button>
+      <form method="post" action="{% url 'task_stop' active.pk %}">{% csrf_token %}<button class="btn btn-stop" type="submit">STOP</button></form>
+    </div>
+  {% else %}
+    <p class="hero-label">Timer idle</p>
+    <h1 id="hero-title" class="hero-title">{% if pending %}Pick a task and start the clock{% else %}Create a task to begin{% endif %}</h1>
+    <div class="charge charge-large charge-idle">
+      <div class="charge-head"><span class="charge-percent">0%</span><span class="charge-left">00:00 <small>remaining</small></span></div>
+      <div class="charge-bar"><div class="charge-fill" style="width:0"></div></div>
+    </div>
+    {% if break_task %}
+      <p class="break-box" data-break-timer data-end="{{ break_end_ms }}" data-server-now="{{ now_ms }}">
+        Break: <b data-break-remaining>{{ break_task.break_seconds_left|clock }}</b> left after “{{ break_task.title }}”. You can start the next task any time.
+      </p>
+    {% endif %}
+    <div class="hero-actions">
+      {% if pending %}
+        <form method="post" action="{% url 'task_start' pending.0.pk %}" class="start-form" data-start-form>
+          {% csrf_token %}
+          <label class="sr-only" for="start-select">Task to start</label>
+          <select id="start-select" data-start-select>
+            {% for t in pending %}<option value="{% url 'task_start' t.pk %}">{{ t.title }} ({{ t.duration }} min)</option>{% endfor %}
+          </select>
+          <button class="btn btn-start" type="submit">START</button>
+        </form>
+      {% else %}
+        <a class="btn btn-start" href="{% url 'task_create' %}">New task</a>
+      {% endif %}
+      <button class="btn btn-stop" type="button" disabled>STOP</button>
+    </div>
+  {% endif %}
+</section>
+
+<section class="stats" aria-label="Statistics">
+  <dl class="stat"><dt>Total tasks</dt><dd>{{ stats.total }}</dd></dl>
+  <dl class="stat"><dt>Completed</dt><dd>{{ stats.completed }}</dd></dl>
+  <dl class="stat"><dt>Active</dt><dd>{{ stats.active }}</dd></dl>
+  <dl class="stat"><dt>Remaining</dt><dd>{{ stats.remaining }}</dd></dl>
+  <dl class="stat"><dt>Today</dt><dd>{{ stats.today_seconds|hm }}</dd></dl>
+  <dl class="stat"><dt>Study hours</dt><dd>{{ stats.study_seconds|hours }}</dd></dl>
+</section>
+
+{% if latest_rewards %}
+<section class="reward-strip" aria-label="Latest rewards">
+  <span class="muted">Latest rewards</span>
+  {% for r in latest_rewards %}<span class="chip chip-reward" title="{{ r.task.title }}">{{ r.reward }}</span>{% endfor %}
+  <a href="{% url 'rewards' %}">All rewards</a>
+</section>
+{% endif %}
+
+<section>
+  <div class="section-head">
+    <h2>Ready to start</h2>
+    <a class="btn btn-ghost btn-small" href="{% url 'task_create' %}">New task</a>
+  </div>
+  {% if pending %}
+    <div class="task-grid">{% for task in pending %}{% include "tracker/_task_card.html" with active=active %}{% endfor %}</div>
+  {% else %}
+    <p class="empty">No tasks waiting. <a href="{% url 'task_create' %}">Create one</a> and set how long you'll study.</p>
+  {% endif %}
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>Recent sessions</h2>
+    <a class="btn btn-ghost btn-small" href="{% url 'history' %}">Full history</a>
+  </div>
+  {% if recent %}
+    <div class="task-grid">{% for task in recent %}{% include "tracker/_task_card.html" with active=active %}{% endfor %}</div>
+  {% else %}
+    <p class="empty">Finished sessions appear here.</p>
+  {% endif %}
+</section>
+{% endblock %}

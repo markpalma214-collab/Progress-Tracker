@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<section class="panel auth-panel">
+  <h1>Create your account</h1>
+  <form method="post" action="{% url 'account_signup' %}" class="form">
+    {% csrf_token %}
+    {% include "tracker/_form_fields.html" %}
+    {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+    <button class="btn btn-start" type="submit">Sign up</button>
+  </form>
+  {% get_providers as socialaccount_providers %}
+  {% if socialaccount_providers %}
+    <p class="divider"><span>or</span></p>
+    {% for provider in socialaccount_providers %}
+      <form method="post" action="{% provider_login_url provider.id process='login' %}">
+        {% csrf_token %}
+        <button class="btn btn-ghost btn-block" type="submit">Sign up with {{ provider.name }}</button>
+      </form>
+    {% endfor %}
+  {% endif %}
+  <p class="muted">Already registered? <a href="{% url 'account_login' %}">Log in</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Rewards{% endblock %}
+{% block content %}
+<h1>Rewards</h1>
+<p class="muted">Badges are earned automatically when you finish a session. You can also attach your own treat to a task.</p>
+<section class="panel">
+  <h2>Add a reward</h2>
+  <form method="post" class="form form-inline">
+    {% csrf_token %}
+    {% include "tracker/_form_fields.html" %}
+    <button class="btn btn-start" type="submit">Add reward</button>
+  </form>
+</section>
+{% if items %}
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Reward</th><th>Task</th><th>Earned</th></tr></thead>
+    <tbody>
+    {% for r in items %}
+      <tr><td><span class="chip chip-reward">{{ r.reward }}</span></td><td><a href="{% url 'task_detail' r.task.pk %}">{{ r.task.title }}</a></td><td>{{ r.created_at|date:"M j, Y" }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <p class="empty">No rewards yet. Finish a session to earn your first badge.</p>
+{% endif %}
+{% endblock %}

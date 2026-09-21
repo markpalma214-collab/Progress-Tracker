@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<h1>Profile</h1>
+<section class="panel">
+  <dl class="detail-grid">
+    <div><dt>Username</dt><dd>{{ user.username }}</dd></div>
+    <div><dt>Email</dt><dd>{{ user.email|default:"Not set" }}</dd></div>
+    <div><dt>Joined</dt><dd>{{ user.date_joined|date:"M j, Y" }}</dd></div>
+    <div><dt>Study hours</dt><dd>{{ stats.study_seconds|hours }}</dd></div>
+  </dl>
+  <p class="muted">Other users only ever see your username and study statistics, never your email.</p>
+</section>
+<section class="panel auth-panel wide">
+  <h2>Name</h2>
+  <form method="post" class="form">
+    {% csrf_token %}
+    {% include "tracker/_form_fields.html" %}
+    <button class="btn btn-start" type="submit">Save changes</button>
+  </form>
+</section>
+{% endblock %}
